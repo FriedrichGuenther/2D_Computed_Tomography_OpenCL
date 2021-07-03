@@ -190,7 +190,7 @@ void set_up_platform_and_devices(cl::Platform& cpu_platform, cl::Device& cpu_dev
 		num_devices = devices_per_platform.size();
 		for(int j=0; j<num_devices; j++)
 		{
-			if(devices_per_platform[j].getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_CPU)
+			if(devices_per_platform[j].getInfo<CL_DEVICE_TYPE>() == CL_DEVICE_TYPE_GPU)
 			{
 				gpu_devices.push_back(devices_per_platform[j]);
 			}
@@ -208,7 +208,7 @@ void set_up_platform_and_devices(cl::Platform& cpu_platform, cl::Device& cpu_dev
 	{
 		cpu_device = gpu_devices[0];
 		cpu_platform = gpu_devices[0].getInfo<CL_DEVICE_PLATFORM>();
-		cout << "Selected " << cpu_device.getInfo<CL_DEVICE_NAME>() << " on platform " << cpu_platform.getInfo<CL_PLATFORM_NAME>() << " as CPU device." << endl;
+		cout << "Selected " << cpu_device.getInfo<CL_DEVICE_NAME>() << " on platform " << cpu_platform.getInfo<CL_PLATFORM_NAME>() << " as GPU device." << endl;
 	}
 	
 	if(total_gpus > 1)
