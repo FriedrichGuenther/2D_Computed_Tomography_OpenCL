@@ -1,4 +1,4 @@
-#2D Computed Tomography in OpenCL
+2D Computed Tomography in OpenCL
 
 This repository contains functions for the inverse problem based approach to 2D computed tomography with parallel geometry, i.e. functions for the forward projection (using image rotation with bilinear interpolation rather than raytracing), RAM-LAK, Shepp-Logan, and Cosine filters for the sinogram and a function for the discrete back projection. 
 
