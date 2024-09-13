@@ -1,4 +1,4 @@
-// ---------------------------------------------------------------------------------- 
+// ----------------------------------------------------------------------------------
 // Filtered Backprojection [OpenCL], written by Friedrich Guenther
 // Rev 9 [04.08.2021]
 // ----------------------------------------------------------------------------------
@@ -9,7 +9,7 @@
 #define __CL_ENABLE_EXCEPTIONS 				// Allows for better error catching/handling
 #if defined(__APPLE__)  					// C++ Wrapper for OpenCL
 #include <OpenCL/cl2.hpp>
-#else 
+#else
 #include <CL/cl2.hpp>
 #endif
 #include "CL_err_helper.hpp"				// Translates OpenCL error codes to human readable format
@@ -38,7 +38,7 @@ using std::chrono::milliseconds;
 #define PINNED_BUFFERS 1					// Using pinned buffers and pinned images if PINNED_BUFFERS is 1; only has an effect if DGPUs is set to 1
 #define LOCAL_RANGE cl::NullRange			// Global controll for local size, i.e. grouping of work items for execution in work groups
 											// cl::NullRange lets runtime choose "appropriate local size",
-											
+
 #if PINNED_BUFFERS==1
 #define PINNED_FLAG(x) x|CL_MEM_ALLOC_HOST_PTR
 #endif
@@ -61,7 +61,7 @@ cl::Program CL_create_program_source(cl::Context context, std::string filename);
 
 // Buffer-Crunchers
 std::vector<float> CL_compute_sinogram(cl::Device device, cl::Context context, std::vector<float>& phantom, unsigned int res, unsigned int rots, unsigned int scans);
-std::vector<float> CL_fast_ram_lak_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, unsigned int res, unsigned int rots, unsigned int scans); 
+std::vector<float> CL_fast_ram_lak_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_fast_shepp_logan_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_fast_cosine_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_discrete_back_projection(cl::Device device, cl::Context context, std::vector<float> &sinogram, unsigned int res, unsigned int rots, unsigned int scans);
@@ -71,7 +71,7 @@ std::vector<float> CL_cosine_filter(cl::Device device, cl::Context context, std:
 
 // Image-Crunchers
 std::vector<float> CL_compute_sinogram_img(cl::Device device, cl::Context context, std::vector<float>& phantom_img, unsigned int res, unsigned int rots, unsigned int scans);
-std::vector<float> CL_fast_ram_lak_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans); 
+std::vector<float> CL_fast_ram_lak_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_fast_shepp_logan_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_fast_cosine_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans);
 std::vector<float> CL_discrete_back_projection_img(cl::Device device, cl::Context context, std::vector<float> &sinogram_img, unsigned int res, unsigned int rots, unsigned int scans);
@@ -127,32 +127,32 @@ int main(void)
 		cl::Device device;
 		set_up_platform_and_devices(platform, device);
 		cl::Context context(device);
-		
-		// Constants 
+
+		// Constants
 		std::vector<unsigned int> resolutions = {1024};
 		unsigned int res,m,n,rots,scans,underscans,iterations;
 		bool use_buffers = false;
-		
+
 		for(int i=0; i<resolutions.size(); i++)
 		{
 			res = resolutions[i];
-			
+
 			rots = res;
 			underscans = 1;
 			scans = res/underscans;
 			iterations = 5;
-			
+
 			std::cout << "Rastering Shepp-Logan phantom..." << std::endl;
 			std::vector<float> phantom = raster_shepp_logan(res);
 			std::cout << "Working on Shepp-Logan phantom in "<< res << "x" << res << " pixels..." << std::endl;
-			
+
 			if(use_buffers)
 			{
 				run_benchmark(phantom, iterations, device, context, res, rots, scans);
 				produce_images(phantom, device, context, res, rots, scans);
 				// noisy_data(phantom, device, context, res, rots, scans);
 			}
-		
+
 			if(!use_buffers) // At some point, one could use this switch
 			{
 				#if EXPERIMENTAL_IMAGES==1
@@ -170,15 +170,15 @@ int main(void)
 				// noisy_data_img(phantom_img, device, context, res, rots, scans);
 				#endif
 			}
-		}	
-		
+		}
+
 		return EXIT_SUCCESS;
-	} 
-	catch(const cl::Error& clExp) 
+	}
+	catch(const cl::Error& clExp)
 	{
 		std::cout << "OpenCL Exception: " << clExp.what() << " with error code " << opencl_err_to_str(clExp.err()) << " (" << clExp.err() << ")" << std::endl;
-	} 
-	catch(const std::exception& e) 
+	}
+	catch(const std::exception& e)
 	{
 		std::cout << "Other exception: " << e.what() << std::endl;
 	}
@@ -197,16 +197,16 @@ void set_up_platform_and_devices(cl::Platform& gpu_platform, cl::Device& gpu_dev
 	std::vector<cl::Platform> platforms;
 	std::vector<cl::Device> devices_per_platform;
 	std::vector<cl::Device> gpu_devices;
-	
+
 	unsigned int num_platforms;
 	unsigned int num_target_device=0;
 	unsigned int num_devices;
 	unsigned int total_gpus;
 	std::string input;
-	
+
 	cl::Platform::get(&platforms);
 	num_platforms = platforms.size();
-	
+
 	for(int i=0; i<num_platforms; i++)
 	{
 		platforms[i].getDevices(CL_DEVICE_TYPE_ALL, &devices_per_platform);
@@ -221,8 +221,8 @@ void set_up_platform_and_devices(cl::Platform& gpu_platform, cl::Device& gpu_dev
 		}
 	}
 	total_gpus = gpu_devices.size();
-	
-	if(total_gpus == 0) 
+
+	if(total_gpus == 0)
 	{
 		throw std::runtime_error("No GPU devices available! Check OpenCL installation!");
 	}
@@ -233,7 +233,7 @@ void set_up_platform_and_devices(cl::Platform& gpu_platform, cl::Device& gpu_dev
 		gpu_platform = gpu_devices[0].getInfo<CL_DEVICE_PLATFORM>();
 		std::cout << "Selected " << gpu_device.getInfo<CL_DEVICE_NAME>() << " on platform " << gpu_platform.getInfo<CL_PLATFORM_NAME>() << " as GPU device." << std::endl;
 	}
-	
+
 	if(total_gpus > 1)
 	{
 		std::cout << "Available GPU devices: " << std::endl;
@@ -242,9 +242,9 @@ void set_up_platform_and_devices(cl::Platform& gpu_platform, cl::Device& gpu_dev
 			std::cout << "[" << i+1 << "] " << gpu_devices[i].getInfo<CL_DEVICE_NAME>() << std::endl;
 		}
 		std::cout << "Please enter target GPU device: ";
-		getline(std::cin, input); 
+		getline(std::cin, input);
 		while(!try_reading_uint(input, num_target_device) or num_target_device < 1 or num_target_device > total_gpus)
-		{	
+		{
 			std::cout << "Please enter target GPU device: ";
 			std::getline(std::cin, input);
 		}
@@ -255,7 +255,7 @@ void set_up_platform_and_devices(cl::Platform& gpu_platform, cl::Device& gpu_dev
 		num_target_device=0;
 		std::cin.clear();
 	}
-	
+
 }
 
 cl::Program CL_create_program_from_source(cl::Context context, cl::Device device, std::string filename)
@@ -275,7 +275,7 @@ cl::Program CL_create_program_from_source(cl::Context context, cl::Device device
 		build_log = program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device);
 		std::cout << build_log << std::endl;
 	}
-	
+
 	return program;
 }
 
@@ -286,15 +286,15 @@ cl::Program CL_create_program_from_source(cl::Context context, cl::Device device
 std::vector<float> CL_compute_sinogram(cl::Device device, cl::Context context, std::vector<float>& image, unsigned int res, unsigned int rots, unsigned int scans)
 {
 	std::vector<float> sinogram(rots*scans, 0.0);
-	
+
 	int underscans = res/scans;
-	float h = (float) 2/res;	
-	float pi = 4*atan(1);
-	
+	float h = (float) 2/res;
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(compute_sinogram.cl));
 	cl::Kernel kernel(program, "compute_sinogram");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
 	cl::Buffer Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), res*res*sizeof(float)); // Pinned host memory for a little extra speed
 	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_WRITE_ONLY), rots*scans*sizeof(float));
@@ -315,14 +315,14 @@ std::vector<float> CL_compute_sinogram(cl::Device device, cl::Context context, s
 	kernel.setArg(5, rots);
 	kernel.setArg(6, pi);
 	kernel.setArg(7, h);
-	
+
 	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(scans, rots), LOCAL_RANGE, NULL); // cl::NDRange(16,16)
-	
+
 	#if DGPU==1
 	queue.enqueueReadBuffer(Sinogram, CL_TRUE, 0, scans*rots*sizeof(float), &sinogram[0]);
-	#endif 
+	#endif
 	queue.finish();
-	
+
 	return sinogram;
 }
 
@@ -334,12 +334,12 @@ std::vector<float> CL_fast_ram_lak_filter(cl::Device device, cl::Context context
 {
 	std::vector<float> filtered(rots*scans, 0.0);
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_ram_lak_filter.cl));
 	cl::Kernel kernel(program, "fast_ram_lak_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
 	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
@@ -350,7 +350,7 @@ std::vector<float> CL_fast_ram_lak_filter(cl::Device device, cl::Context context
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
@@ -363,7 +363,7 @@ std::vector<float> CL_fast_ram_lak_filter(cl::Device device, cl::Context context
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
@@ -371,14 +371,14 @@ std::vector<float> CL_fast_shepp_logan_filter(cl::Device device, cl::Context con
 {
 	std::vector<float> filtered(rots*scans, 0.0);
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_shepp_logan_filter.cl));
 	cl::Kernel kernel(program, "fast_shepp_logan_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	#endif
@@ -387,7 +387,7 @@ std::vector<float> CL_fast_shepp_logan_filter(cl::Device device, cl::Context con
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
@@ -395,12 +395,12 @@ std::vector<float> CL_fast_shepp_logan_filter(cl::Device device, cl::Context con
 	kernel.setArg(4, pi);
 	kernel.setArg(5, h);
 
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
@@ -408,14 +408,14 @@ std::vector<float> CL_fast_cosine_filter(cl::Device device, cl::Context context,
 {
 	std::vector<float> filtered(rots*scans, 0.0);
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_cosine_filter.cl));
 	cl::Kernel kernel(program, "fast_cosine_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	#endif
@@ -424,20 +424,20 @@ std::vector<float> CL_fast_cosine_filter(cl::Device device, cl::Context context,
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
 	kernel.setArg(3, rots);
 	kernel.setArg(4, pi);
 	kernel.setArg(5, h);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
@@ -449,26 +449,26 @@ std::vector<float> CL_discrete_back_projection(cl::Device device, cl::Context co
 {
 	std::vector<float> reconstruction(res*res, 0.0);
 	float h = (float) 2/res;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float scale = (float) 2*pi/rots;
 	int half_scans=scans/2;
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(discrete_back_projection.cl));
 	cl::Kernel kernel(program, "discrete_back_projection");
 	cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Reconstruction(context, PINNED_FLAG(CL_MEM_READ_WRITE), res*res*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	queue.enqueueWriteBuffer(Reconstruction, CL_TRUE, 0, res*res*sizeof(float), &reconstruction[0]);
 	#endif
-	
+
 	#if DGPU==0
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Reconstruction(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, res*res*sizeof(float), &reconstruction[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Reconstruction);
 	kernel.setArg(2, res);
@@ -479,12 +479,12 @@ std::vector<float> CL_discrete_back_projection(cl::Device device, cl::Context co
 	kernel.setArg(7, pi);
 	kernel.setArg(8, h);
 
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(res, res), LOCAL_RANGE, NULL); 
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(res, res), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Reconstruction, CL_TRUE, 0, res*res*sizeof(float), &reconstruction[0]);
 	#endif
 	queue.finish();
-	
+
 	return reconstruction;
 }
 
@@ -495,17 +495,17 @@ std::vector<float> CL_discrete_back_projection(cl::Device device, cl::Context co
 std::vector<float> CL_ram_lak_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, float b, unsigned int res, unsigned int rots, unsigned int scans)
 {
 	std::vector<float> filtered(rots*scans, 0.0);
-	
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(ram_lak_filter.cl));
 	cl::Kernel kernel(program, "ram_lak_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	#endif
@@ -514,7 +514,7 @@ std::vector<float> CL_ram_lak_filter(cl::Device device, cl::Context context, std
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
@@ -523,30 +523,30 @@ std::vector<float> CL_ram_lak_filter(cl::Device device, cl::Context context, std
 	kernel.setArg(5, h);
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
 std::vector<float> CL_shepp_logan_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, float b, unsigned int res, unsigned int rots, unsigned int scans)
 {
 	std::vector<float> filtered(rots*scans, 0.0);
-	
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(shepp_logan_filter.cl));
 	cl::Kernel kernel(program, "shepp_logan_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	#endif
@@ -555,7 +555,7 @@ std::vector<float> CL_shepp_logan_filter(cl::Device device, cl::Context context,
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
@@ -564,30 +564,30 @@ std::vector<float> CL_shepp_logan_filter(cl::Device device, cl::Context context,
 	kernel.setArg(5, h);
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
 std::vector<float> CL_cosine_filter(cl::Device device, cl::Context context, std::vector<float>& sinogram, float b, unsigned int res, unsigned int rots, unsigned int scans)
 {
 	std::vector<float> filtered(rots*scans, 0.0);
-	
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(cosine_filter.cl));
 	cl::Kernel kernel(program, "cosine_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if DGPU==1
-	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float)); 
+	cl::Buffer Sinogram(context, PINNED_FLAG(CL_MEM_READ_ONLY), rots*scans*sizeof(float));
 	cl::Buffer Filtered(context, PINNED_FLAG(CL_MEM_READ_WRITE), rots*scans*sizeof(float));
 	queue.enqueueWriteBuffer(Sinogram, CL_TRUE, 0, rots*scans*sizeof(float), &sinogram[0]);
 	#endif
@@ -596,7 +596,7 @@ std::vector<float> CL_cosine_filter(cl::Device device, cl::Context context, std:
 	cl::Buffer Sinogram(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &sinogram[0]);
 	cl::Buffer Filtered(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rots*scans*sizeof(float), &filtered[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram);
 	kernel.setArg(1, Filtered);
 	kernel.setArg(2, scans);
@@ -605,13 +605,13 @@ std::vector<float> CL_cosine_filter(cl::Device device, cl::Context context, std:
 	kernel.setArg(5, h);
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Filtered, CL_TRUE, 0, rots*scans*sizeof(float), &filtered[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered;
 }
 
@@ -632,15 +632,15 @@ std::vector<float> CL_compute_sinogram_img(cl::Device device, cl::Context contex
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> sinogram_img(rots*scans*4, 0.0);
 	#endif
-	
+
 	int underscans = res/scans;
-	float h = (float) 2/res;	
-	float pi = 4*atan(1);
-	
+	float h = (float) 2/res;
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(compute_sinogram_img.cl));
 	cl::Kernel kernel(program, "compute_sinogram");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
 	#endif
@@ -651,7 +651,7 @@ std::vector<float> CL_compute_sinogram_img(cl::Device device, cl::Context contex
 	#if DGPU==1
 	cl::Image2D Phantom_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, res, res);
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_WRITE_ONLY), rgb, scans, rots);
-	
+
 	std::array<cl::size_type, 3> origin {0,0,0};
 	std::array<cl::size_type, 3> region {res, res, 1};
 	std::array<cl::size_type, 3> region_dst {scans, rots, 1};
@@ -672,13 +672,13 @@ std::vector<float> CL_compute_sinogram_img(cl::Device device, cl::Context contex
 	kernel.setArg(5, rots);
 	kernel.setArg(6, pi);
 	kernel.setArg(7, h);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(scans, rots), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(scans, rots), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadImage(Sinogram_Image, CL_TRUE, origin, region_dst, 0, 0, &sinogram_img[0]);
-	#endif 
+	#endif
 	queue.finish();
-	
+
 	return sinogram_img;
 }
 
@@ -693,21 +693,21 @@ std::vector<float> CL_fast_ram_lak_filter_img(cl::Device device, cl::Context con
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
+	#endif
 
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
+	float pi = M_PI;
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_ram_lak_filter_img.cl));
 	cl::Kernel kernel(program, "fast_ram_lak_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -721,59 +721,7 @@ std::vector<float> CL_fast_ram_lak_filter_img(cl::Device device, cl::Context con
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
 	#endif
-	
-	kernel.setArg(0, Sinogram_Image);
-	kernel.setArg(1, Filtered_Image);
-	kernel.setArg(2, scans);
-	kernel.setArg(3, rots);
-	kernel.setArg(4, pi);
-	kernel.setArg(5, h);
 
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
-	#if DGPU==1
-	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
-	#endif
-	queue.finish();
-	
-	return filtered_img;
-}
-
-std::vector<float> CL_fast_shepp_logan_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans)
-{
-	#if EXPERIMENTAL_IMAGES==1
-	std::vector<float> filtered_img(rots*scans, 0.0);
-	#endif
-	#if EXPERIMENTAL_IMAGES==0
-	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
-	
-	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
-	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_shepp_logan_filter_img.cl));
-	cl::Kernel kernel(program, "fast_shepp_logan_filter");
-	cl::CommandQueue queue(context, device);
-	
-	#if EXPERIMENTAL_IMAGES==1
-	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
-	#if EXPERIMENTAL_IMAGES==0
-	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
-
-	#if DGPU==1
-	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
-	cl::Image2D Filtered_Image(context, PINNED_FLAG(CL_MEM_READ_WRITE), rgb, scans, rots);
-	std::array<cl::size_type, 3> origin {0,0,0};
-	std::array<cl::size_type, 3> region {scans, rots, 1};
-	queue.enqueueWriteImage(Sinogram_Image, CL_TRUE, origin, region, 0, 0, &sinogram_img[0]);
-	#endif
-
-	#if DGPU==0
-	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
-	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
-	#endif
-	
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Filtered_Image);
 	kernel.setArg(2, scans);
@@ -786,32 +734,32 @@ std::vector<float> CL_fast_shepp_logan_filter_img(cl::Device device, cl::Context
 	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered_img;
 }
 
-std::vector<float> CL_fast_cosine_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans)
+std::vector<float> CL_fast_shepp_logan_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans)
 {
 	#if EXPERIMENTAL_IMAGES==1
 	std::vector<float> filtered_img(rots*scans, 0.0);
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
-	
+	#endif
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
-	
-	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_cosine_filter_img.cl));
-	cl::Kernel kernel(program, "fast_cosine_filter");
+	float pi = M_PI;
+
+	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_shepp_logan_filter_img.cl));
+	cl::Kernel kernel(program, "fast_shepp_logan_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -825,20 +773,72 @@ std::vector<float> CL_fast_cosine_filter_img(cl::Device device, cl::Context cont
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Filtered_Image);
 	kernel.setArg(2, scans);
 	kernel.setArg(3, rots);
 	kernel.setArg(4, pi);
 	kernel.setArg(5, h);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
-	#endif 
+	#endif
 	queue.finish();
-	
+
+	return filtered_img;
+}
+
+std::vector<float> CL_fast_cosine_filter_img(cl::Device device, cl::Context context, std::vector<float>& sinogram_img, unsigned int res, unsigned int rots, unsigned int scans)
+{
+	#if EXPERIMENTAL_IMAGES==1
+	std::vector<float> filtered_img(rots*scans, 0.0);
+	#endif
+	#if EXPERIMENTAL_IMAGES==0
+	std::vector<float> filtered_img(rots*scans*4, 0.0);
+	#endif
+
+	float h = (float) 2/scans;
+	float pi = M_PI;
+
+	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(fast_cosine_filter_img.cl));
+	cl::Kernel kernel(program, "fast_cosine_filter");
+	cl::CommandQueue queue(context, device);
+
+	#if EXPERIMENTAL_IMAGES==1
+	cl::ImageFormat rgb(CL_R, CL_FLOAT);
+	#endif
+	#if EXPERIMENTAL_IMAGES==0
+	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
+	#endif
+
+	#if DGPU==1
+	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
+	cl::Image2D Filtered_Image(context, PINNED_FLAG(CL_MEM_READ_WRITE), rgb, scans, rots);
+	std::array<cl::size_type, 3> origin {0,0,0};
+	std::array<cl::size_type, 3> region {scans, rots, 1};
+	queue.enqueueWriteImage(Sinogram_Image, CL_TRUE, origin, region, 0, 0, &sinogram_img[0]);
+	#endif
+
+	#if DGPU==0
+	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
+	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
+	#endif
+
+	kernel.setArg(0, Sinogram_Image);
+	kernel.setArg(1, Filtered_Image);
+	kernel.setArg(2, scans);
+	kernel.setArg(3, rots);
+	kernel.setArg(4, pi);
+	kernel.setArg(5, h);
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
+	#if DGPU==1
+	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
+	#endif
+	queue.finish();
+
 	return filtered_img;
 }
 
@@ -853,23 +853,23 @@ std::vector<float> CL_discrete_back_projection_img(cl::Device device, cl::Contex
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> reconstruction(res*res, 0.0);
-	#endif 
+	#endif
 
 	float h = (float) 2/res;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float scale = (float) 2*pi/rots;
 	int half_scans=scans/2;
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(discrete_back_projection_img.cl));
 	cl::Kernel kernel(program, "discrete_back_projection");
 	cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -884,7 +884,7 @@ std::vector<float> CL_discrete_back_projection_img(cl::Device device, cl::Contex
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Buffer Reconstruction(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, res*res*sizeof(float), &reconstruction[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Reconstruction);
 	kernel.setArg(2, res);
@@ -894,13 +894,13 @@ std::vector<float> CL_discrete_back_projection_img(cl::Device device, cl::Contex
 	kernel.setArg(6, scale);
 	kernel.setArg(7, pi);
 	kernel.setArg(8, h);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(res, res), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(res, res), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadBuffer(Reconstruction, CL_TRUE, 0, res*res*sizeof(float), &reconstruction[0]);
-	#endif 
+	#endif
 	queue.finish();
-	
+
 	return reconstruction;
 }
 
@@ -915,22 +915,22 @@ std::vector<float> CL_ram_lak_filter_img(cl::Device device, cl::Context context,
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
-	
+	#endif
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(ram_lak_filter_img.cl));
 	cl::Kernel kernel(program, "ram_lak_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -944,7 +944,7 @@ std::vector<float> CL_ram_lak_filter_img(cl::Device device, cl::Context context,
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Filtered_Image);
 	kernel.setArg(2, scans);
@@ -954,12 +954,12 @@ std::vector<float> CL_ram_lak_filter_img(cl::Device device, cl::Context context,
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
 
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered_img;
 }
 
@@ -970,22 +970,22 @@ std::vector<float> CL_shepp_logan_filter_img(cl::Device device, cl::Context cont
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
-	
+	#endif
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(shepp_logan_filter_img.cl));
 	cl::Kernel kernel(program, "shepp_logan_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -999,7 +999,7 @@ std::vector<float> CL_shepp_logan_filter_img(cl::Device device, cl::Context cont
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Filtered_Image);
 	kernel.setArg(2, scans);
@@ -1009,12 +1009,12 @@ std::vector<float> CL_shepp_logan_filter_img(cl::Device device, cl::Context cont
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
 
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
 	#endif
 	queue.finish();
-	
+
 	return filtered_img;
 }
 
@@ -1025,22 +1025,22 @@ std::vector<float> CL_cosine_filter_img(cl::Device device, cl::Context context, 
 	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> filtered_img(rots*scans*4, 0.0);
-	#endif 
-	
+	#endif
+
 	float h = (float) 2/scans;
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float epsilon = pow(10,-8);
-	
+
 	cl::Program program = CL_create_program_from_source(context, device, KERNEL_PATH(cosine_filter_img.cl));
 	cl::Kernel kernel(program, "cosine_filter");
 	cl::CommandQueue queue(context, device);
-	
+
 	#if EXPERIMENTAL_IMAGES==1
 	cl::ImageFormat rgb(CL_R, CL_FLOAT);
-	#endif 
+	#endif
 	#if EXPERIMENTAL_IMAGES==0
 	cl::ImageFormat rgb(CL_RGBA, CL_FLOAT);
-	#endif 
+	#endif
 
 	#if DGPU==1
 	cl::Image2D Sinogram_Image(context, PINNED_FLAG(CL_MEM_READ_ONLY), rgb, scans, rots);
@@ -1054,7 +1054,7 @@ std::vector<float> CL_cosine_filter_img(cl::Device device, cl::Context context, 
 	cl::Image2D Sinogram_Image(context, CL_MEM_READ_ONLY|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &sinogram_img[0]);
 	cl::Image2D Filtered_Image(context, CL_MEM_READ_WRITE|CL_MEM_USE_HOST_PTR, rgb, scans, rots, 0, &filtered_img[0]);
 	#endif
-	
+
 	kernel.setArg(0, Sinogram_Image);
 	kernel.setArg(1, Filtered_Image);
 	kernel.setArg(2, scans);
@@ -1063,14 +1063,14 @@ std::vector<float> CL_cosine_filter_img(cl::Device device, cl::Context context, 
 	kernel.setArg(5, h);
 	kernel.setArg(6, epsilon);
 	kernel.setArg(7, b);
-	
-	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL); 
+
+	queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(rots, scans), LOCAL_RANGE, NULL);
 	#if DGPU==1
 	queue.enqueueReadImage(Filtered_Image, CL_TRUE, origin, region, 0, 0, &filtered_img[0]);
 	#endif
 	queue.finish();
-	
-	return filtered_img; 
+
+	return filtered_img;
 }
 
 // --------------------------------------------------------------------------------------------------------------------------------
@@ -1083,7 +1083,7 @@ std::vector<float> create_image2d_type(std::vector<float>& image)
 	std::vector<float> image_img(k*4, 0.0);
 	for(int i=0; i<k; i++)
 		image_img[4*i] = image[i];
-	
+
 	return image_img;
 }
 
@@ -1100,9 +1100,9 @@ std::vector<float> reduce_to_buffer(std::vector<float>& image)
 		}
 		return output;
 	}
-	else 
+	else
 		throw std::runtime_error("Corrupt image in >>reduce_to_buffer<<!");
-	
+
 }
 
 void remove_artifacts(std::vector<float>& reconstruction, unsigned int res)
@@ -1125,11 +1125,11 @@ void remove_artifacts(std::vector<float>& reconstruction, unsigned int res)
 
 std::vector<duration<double, std::milli>> bench_for_execution_time(std::vector<float> (*crunch)(cl::Device, cl::Context, std::vector<float>&, unsigned int, unsigned int, unsigned int), unsigned int iterations, cl::Device device, cl::Context context, std::vector<float>& image, unsigned int res, unsigned int rots, unsigned int scans)
 {
-	std::vector<duration<double, std::milli>> times(3); // Total duration, average, standard deviation 
+	std::vector<duration<double, std::milli>> times(3); // Total duration, average, standard deviation
 	std::vector<duration<double, std::milli>> individual_runs(iterations);
 	std::vector<float> dummy;
 	double standard_deviation=0;
-	
+
 	auto t1 = high_resolution_clock::now();
 	auto t2 = high_resolution_clock::now();
 	times[0] = t1-t1; // Set first component to zero
@@ -1149,7 +1149,7 @@ std::vector<duration<double, std::milli>> bench_for_execution_time(std::vector<f
 	standard_deviation *= (double) 1/iterations;
 	standard_deviation = sqrt(standard_deviation);
 	times[2] = duration<double, std::milli>(standard_deviation);
-	
+
 	return times;
 }
 
@@ -1164,35 +1164,35 @@ void run_benchmark(std::vector<float>& phantom, unsigned int iterations, cl::Dev
 {
 	std::vector<duration<double, std::milli>> times;
 	std::vector<float> sinogram;
-	
+
 	std::cout << "Running benchmark using buffers..." << std::endl;
 	std::cout << "-----------------------------------------------------------------------------" << std::endl;
 	std::cout << "| Function                        | total [ms] | avg [ms] | stdev [ms] |  N |" << std::endl;
 	std::cout << "-----------------------------------------------------------------------------" << std::endl;
 	std::cout.precision(2);
 	std::cout << std::fixed;
-		
+
 	auto function = CL_compute_sinogram;
 	times = bench_for_execution_time(function, iterations, device, context, phantom, res, rots, scans);
 	std::cout << std::right << "| CL_compute_sinogram             | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	if(rots*scans != res*res)
-	{	
+	{
 		phantom = std::vector<float>(rots*scans,0.0);
 	}
-	
+
 	function = CL_fast_ram_lak_filter;
 	times = bench_for_execution_time(function, iterations, device, context, phantom, res, rots, scans);
 	std::cout << std::right << "| CL_fast_ram_lak_filter          | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	function = CL_fast_shepp_logan_filter;
 	times = bench_for_execution_time(function, iterations, device, context, phantom, res, rots, scans);
 	std::cout << std::right << "| CL_fast_shepp_logan_filter      | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	function = CL_fast_cosine_filter;
 	times = bench_for_execution_time(function, iterations, device, context, phantom, res, rots, scans);
 	std::cout << std::right << "| CL_fast_cosine_filter           | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	function = CL_discrete_back_projection;
 	times = bench_for_execution_time(function, iterations, device, context, phantom, res, rots, scans);
 	std::cout << std::right << "| CL_discrete_back_projection     | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
@@ -1200,37 +1200,37 @@ void run_benchmark(std::vector<float>& phantom, unsigned int iterations, cl::Dev
 }
 
 void produce_images(std::vector<float>& phantom, cl::Device device, cl::Context context, unsigned int res, unsigned int rots, unsigned int scans)
-{	
+{
 	auto function = CL_compute_sinogram;
 	std::vector<float> sinogram = run_function(function, device, context, phantom, res, rots, scans);
 	std::cout << "Computed sinogram..." << std::endl;
-		
+
 	function = CL_fast_ram_lak_filter;
 	std::vector<float> rlf = run_function(function, device, context, sinogram, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Ram-Lak filter..." << std::endl;
-		
+
 	function = CL_fast_shepp_logan_filter;
 	std::vector<float> slf = run_function(function, device, context, sinogram, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Shepp-Logan filter..." << std::endl;
-		
+
 	function = CL_fast_cosine_filter;
 	std::vector<float> cf = run_function(function, device, context, sinogram, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Cosine filter..." << std::endl;
-		
+
 	function = CL_discrete_back_projection; // Attention: Discrete back projection returns buffer, not image2d_t!
 	std::vector<float> dbp = run_function(function, device, context, sinogram, res, rots, scans);
 	std::cout << "Performed back projection of sinogram..." << std::endl;
-		
+
 	std::vector<float> dbp_rlf = run_function(function, device, context, rlf, res, rots, scans);
 	std::cout << "Performed back projection of Ram-Lak filtered sinogram..." << std::endl;
-		
+
 	std::vector<float> dbp_slf = run_function(function, device, context, slf, res, rots, scans);
 	std::cout << "Performed back projection of Shepp-Logan filtered sinogram..." << std::endl;
-		
+
 	function = CL_discrete_back_projection;
 	std::vector<float> dbp_cf = run_function(function, device, context, cf, res, rots, scans);
-	std::cout << "Performed back projection of Cosine filtered sinogram... " << std::endl; 
-	
+	std::cout << "Performed back projection of Cosine filtered sinogram... " << std::endl;
+
 	remove_artifacts(dbp_rlf, res);
 	remove_artifacts(dbp_slf, res);
 	remove_artifacts(dbp_cf, res);
@@ -1238,17 +1238,17 @@ void produce_images(std::vector<float>& phantom, cl::Device device, cl::Context 
 	std::vector<float> err_dbp_rlf = absolute_value_of_matrix_difference(phantom, dbp_rlf);
 	std::vector<float> err_dbp_slf = absolute_value_of_matrix_difference(phantom, dbp_slf);
 	std::vector<float> err_dbp_cf = absolute_value_of_matrix_difference(phantom, dbp_cf);
-	
+
 	std::string outfile = "./Output/sinogram_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm(outfile, sinogram, scans, rots);
-		
+
 	outfile = "./Output/sinogram_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, rlf, scans, rots);
 	outfile = "./Output/sinogram_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, slf, scans, rots);
 	outfile = "./Output/sinogram_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, cf, scans, rots);
-	
+
 	outfile = "./Output/dbp_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, dbp, res, res);
 	outfile = "./Output/dbp_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
@@ -1257,7 +1257,7 @@ void produce_images(std::vector<float>& phantom, cl::Device device, cl::Context 
 	write_matrix_float_to_pgm_normalised(outfile, dbp_slf, res, res);
 	outfile = "./Output/dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, dbp_cf, res, res);
-	
+
 	outfile = "./Output/err_dbp_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp, res, res);
 	outfile = "./Output/err_dbp_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
@@ -1266,49 +1266,49 @@ void produce_images(std::vector<float>& phantom, cl::Device device, cl::Context 
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp_slf, res, res);
 	outfile = "./Output/err_dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp_cf, res, res);
-	
+
 	std::cout << "Wrote results to disk." << std::endl;
 }
 
 void noisy_data(std::vector<float>& phantom, cl::Device device, cl::Context context, unsigned int res, unsigned int rots, unsigned int scans)
 {
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float h = (float) 2/res;
-	
+
 	std::vector<float> sinogram_standard = CL_compute_sinogram(device, context, phantom, res, rots, scans);
 	std::cout << "Computed sinogram..." << std::endl;
-	
+
 	std::vector<float> salt_and_pepper = salt_and_pepper_noise(res, 0.4);
 	std::vector<float> sinogram = add_matrices(sinogram_standard, salt_and_pepper);
-	
+
 	write_matrix_float_to_pgm_normalised("phantom.pgm", phantom, res, res);
 	write_matrix_float_to_pgm_normalised("sinogram_standard.pgm", sinogram, res, res);
-	
+
 	for(int i=0; i<3; i++)
 	{
-		std::vector<float> slf = CL_shepp_logan_filter(device, context, sinogram, pi/(3*(2*i+1)*h), res, rots, scans); 
+		std::vector<float> slf = CL_shepp_logan_filter(device, context, sinogram, pi/(3*(2*i+1)*h), res, rots, scans);
 		std::cout << "Computed Shepp-Logan filter..." << std::endl;
-		std::vector<float> cf = CL_cosine_filter(device, context, sinogram, pi/(3*(2*i+1)*h), res, rots, scans); 
+		std::vector<float> cf = CL_cosine_filter(device, context, sinogram, pi/(3*(2*i+1)*h), res, rots, scans);
 		std::cout << "Computed Cosine filter..." << std::endl;
 		std::vector<float> dbp_slf = CL_discrete_back_projection(device, context, slf, res, rots, scans);
 		std::cout << "Discrete back projection of Shepp-Logan filtered sinogram performed..." << std::endl;
 		std::vector<float> dbp_cf = CL_discrete_back_projection(device, context, cf, res, rots, scans);
 		std::cout << "Discrete back projection of Cosine filtered sinogram performed..." << std::endl;
-	
+
 		std::string outfile = "./Output/sinogram_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, slf, scans, rots);
 		outfile = "./Output/sinogram_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, cf, scans, rots);
-	
+
 		remove_artifacts(dbp_slf, res);
 		remove_artifacts(dbp_cf, res);
-	
+
 		outfile = "./Output/dbp_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, dbp_slf, res, res);
 		outfile = "./Output/dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, dbp_cf, res, res);
 		std::cout << "Results written to disk." << std::endl;
-		
+
 		std::vector<float> difference = absolute_value_of_matrix_difference(dbp_slf, dbp_cf);
 		outfile = "./Output/difference_cf_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, difference, res, res);
@@ -1323,33 +1323,33 @@ void run_benchmark_img(std::vector<float>& phantom_img, unsigned int iterations,
 {
 	std::vector<duration<double, std::milli>> times;
 	std::vector<float> sinogram_img;
-	
+
 	std::cout << "Running benchmark using image2d_t's..." << std::endl;
 	std::cout << "-----------------------------------------------------------------------------" << std::endl;
 	std::cout << "| Function                        | total [ms] | avg [ms] | stdev [ms] |  N |" << std::endl;
 	std::cout << "-----------------------------------------------------------------------------" << std::endl;
 	std::cout.precision(2);
 	std::cout << std::fixed;
-		
+
 	auto function = CL_compute_sinogram_img;
 	times = bench_for_execution_time(function, iterations, device, context, phantom_img, res, rots, scans);
 	std::cout << std::right << "| CL_compute_sinogram_img         | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	if (rots * scans != res*res)
 		phantom_img = std::vector<float>(rots*scans,0);
-	
+
 	function = CL_fast_ram_lak_filter_img;
 	times = bench_for_execution_time(function, iterations, device, context, phantom_img, res, rots, scans);
 	std::cout << std::right << "| CL_fast_ram_lak_filter_img      | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-	
+
 	function = CL_fast_shepp_logan_filter_img;
 	times = bench_for_execution_time(function, iterations, device, context, phantom_img, res, rots, scans);
 	std::cout << std::right << "| CL_fast_shepp_logan_filter_img  | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-		
+
 	function = CL_fast_cosine_filter_img;
 	times = bench_for_execution_time(function, iterations, device, context, phantom_img, res, rots, scans);
 	std::cout << std::right << "| CL_fast_cosine_filter_img       | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
-		
+
 	function = CL_discrete_back_projection_img;
 	times = bench_for_execution_time(function, iterations, device, context, phantom_img, res, rots, scans);
 	std::cout << std::right << "| CL_discrete_back_projection_img | " << std::setw(10) << times[0].count() << " | " << std::setw(8) << times[1].count() << " | " << std::setw(10) << times[2].count() << " | " << std::setw(2) << iterations << " |" << std::endl;
@@ -1357,36 +1357,36 @@ void run_benchmark_img(std::vector<float>& phantom_img, unsigned int iterations,
 }
 
 void produce_images_img(std::vector<float>& phantom_img, cl::Device device, cl::Context context, unsigned int res, unsigned int rots, unsigned int scans)
-{	
+{
 	auto function = CL_compute_sinogram_img;
 	std::vector<float> sinogram_img = run_function(function, device, context, phantom_img, res, rots, scans);
 	std::cout << "Computed sinogram..." << std::endl;
-		
+
 	function = CL_fast_ram_lak_filter_img;
 	std::vector<float> rlf_img = run_function(function, device, context, sinogram_img, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Ram-Lak filter..." << std::endl;
-		
+
 	function = CL_fast_shepp_logan_filter_img;
 	std::vector<float> slf_img = run_function(function, device, context, sinogram_img, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Shepp-Logan filter..." << std::endl;
-		
+
 	function = CL_fast_cosine_filter_img;
 	std::vector<float> cf_img = run_function(function, device, context, sinogram_img, res, rots, scans);
 	std::cout << "Filtered sinogram with fast Cosine filter..." << std::endl;
-		
+
 	function = CL_discrete_back_projection_img; // Attention: Discrete back projection returns buffer, not image2d_t!
 	std::vector<float> dbp = run_function(function, device, context, sinogram_img, res, rots, scans);
 	std::cout << "Performed back projection of sinogram..." << std::endl;
-		
+
 	std::vector<float> dbp_rlf = run_function(function, device, context, rlf_img, res, rots, scans);
 	std::cout << "Performed back projection of Ram-Lak filtered sinogram..." << std::endl;
-		
+
 	std::vector<float> dbp_slf = run_function(function, device, context, slf_img, res, rots, scans);
 	std::cout << "Performed back projection of Shepp-Logan filtered sinogram..." << std::endl;
 
 	std::vector<float> dbp_cf = run_function(function, device, context, cf_img, res, rots, scans);
-	std::cout << "Performed back projection of Cosine filtered sinogram... " << std::endl; 
-	
+	std::cout << "Performed back projection of Cosine filtered sinogram... " << std::endl;
+
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> phantom = reduce_to_buffer(phantom_img);
 	std::vector<float> sinogram = reduce_to_buffer(sinogram_img);
@@ -1408,17 +1408,17 @@ void produce_images_img(std::vector<float>& phantom_img, cl::Device device, cl::
 	std::vector<float> err_dbp_rlf = absolute_value_of_matrix_difference(phantom, dbp_rlf);
 	std::vector<float> err_dbp_slf = absolute_value_of_matrix_difference(phantom, dbp_slf);
 	std::vector<float> err_dbp_cf = absolute_value_of_matrix_difference(phantom, dbp_cf);
-	
+
 	std::string outfile = "./Output/sinogram_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm(outfile, sinogram, scans, rots);
-		
+
 	outfile = "./Output/sinogram_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, rlf, scans, rots);
 	outfile = "./Output/sinogram_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, slf, scans, rots);
 	outfile = "./Output/sinogram_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, cf, scans, rots);
-	
+
 	outfile = "./Output/dbp_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, dbp, res, res);
 	outfile = "./Output/dbp_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
@@ -1427,7 +1427,7 @@ void produce_images_img(std::vector<float>& phantom_img, cl::Device device, cl::
 	write_matrix_float_to_pgm_normalised(outfile, dbp_slf, res, res);
 	outfile = "./Output/dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, dbp_cf, res, res);
-	
+
 	outfile = "./Output/err_dbp_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp, res, res);
 	outfile = "./Output/err_dbp_rlf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
@@ -1436,18 +1436,18 @@ void produce_images_img(std::vector<float>& phantom_img, cl::Device device, cl::
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp_slf, res, res);
 	outfile = "./Output/err_dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+".pgm";
 	write_matrix_float_to_pgm_normalised(outfile, err_dbp_cf, res, res);
-	
+
 	std::cout << "Wrote results to disk." << std::endl;
 }
 
 void noisy_data_img(std::vector<float>& phantom_img, cl::Device device, cl::Context context, unsigned int res, unsigned int rots, unsigned int scans)
 {
-	float pi = 4*atan(1);
+	float pi = M_PI;
 	float h = (float) 2/res;
-	
+
 	std::vector<float> sinogram_standard_img = CL_compute_sinogram_img(device, context, phantom_img, res, rots, scans);
 	std::cout << "Computed sinogram..." << std::endl;
-	
+
 	std::vector<float> salt_and_pepper = salt_and_pepper_noise(res, 0.05);
 	#if EXPERIMENTAL_IMAGES==0
 	std::vector<float> salt_and_pepper_img = create_image2d_type(salt_and_pepper);
@@ -1458,15 +1458,15 @@ void noisy_data_img(std::vector<float>& phantom_img, cl::Device device, cl::Cont
 	#endif
 	for(int i=0; i<3; i++)
 	{
-		std::vector<float> slf_img = CL_shepp_logan_filter_img(device, context, sinogram_img, pi/(3*(2*i+1)*h), res, rots, scans); 
+		std::vector<float> slf_img = CL_shepp_logan_filter_img(device, context, sinogram_img, pi/(3*(2*i+1)*h), res, rots, scans);
 		std::cout << "Computed Shepp-Logan filter..." << std::endl;
-		std::vector<float> cf_img = CL_cosine_filter_img(device, context, sinogram_img, pi/(3*(2*i+1)*h), res, rots, scans); 
+		std::vector<float> cf_img = CL_cosine_filter_img(device, context, sinogram_img, pi/(3*(2*i+1)*h), res, rots, scans);
 		std::cout << "Computed Cosine filter..." << std::endl;
 		std::vector<float> dbp_slf = CL_discrete_back_projection_img(device, context, slf_img, res, rots, scans);
 		std::cout << "Discrete back projection of Shepp-Logan filtered sinogram performed..." << std::endl;
 		std::vector<float> dbp_cf = CL_discrete_back_projection_img(device, context, cf_img, res, rots, scans);
 		std::cout << "Discrete back projection of Cosine filtered sinogram performed..." << std::endl;
-	
+
 		#if EXPERIMENTAL_IMAGES==0
 		std::vector<float> slf = reduce_to_buffer(slf_img);
 		std::vector<float> cf = reduce_to_buffer(cf_img);
@@ -1475,21 +1475,21 @@ void noisy_data_img(std::vector<float>& phantom_img, cl::Device device, cl::Cont
 		std::vector<float> slf = slf_img;
 		std::vector<float> cf = cf_img;
 		#endif
-	
+
 		std::string outfile = "./Output/sinogram_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, slf, scans, rots);
 		outfile = "./Output/sinogram_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, cf, scans, rots);
-	
+
 		remove_artifacts(dbp_slf, res);
 		remove_artifacts(dbp_cf, res);
-	
+
 		outfile = "./Output/dbp_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, dbp_slf, res, res);
 		outfile = "./Output/dbp_cf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, dbp_cf, res, res);
 		std::cout << "Results written to disk." << std::endl;
-		
+
 		std::vector<float> difference = absolute_value_of_matrix_difference(dbp_slf, dbp_cf);
 		outfile = "./Output/difference_cf_slf_"+std::to_string(res)+"_"+std::to_string(rots)+"_"+std::to_string(scans)+"_noise_"+std::to_string(i)+".pgm";
 		write_matrix_float_to_pgm_normalised(outfile, difference, res, res);
@@ -1505,18 +1505,18 @@ unsigned int set_resolution(unsigned int m, unsigned int n)
 {
 	if(m == n)
 		return m;
-	else 
+	else
 		throw std::runtime_error("Non-square phantoms not supported at this point, aborting");
 }
 
 std::vector<float> salt_and_pepper_noise(unsigned int res, float amp) // Expects amplitude between 0 and 1
 {
 	std::vector<float> image(res*res, 0);
-	
+
 	std::random_device dev;
     std::default_random_engine rng(dev());
     std::uniform_int_distribution<int> dist(-127,127);
-	
+
 	for(int i=0; i<res; i++)
 		for(int j=0; j<res; j++)
 			image[i*res+j] = amp*dist(rng);
@@ -1525,18 +1525,18 @@ std::vector<float> salt_and_pepper_noise(unsigned int res, float amp) // Expects
 }
 
 std::vector<float> add_matrices(std::vector<float>& A, std::vector<float>& B)
-{	
+{
 	if (A.size() == B.size())
 	{
 		std::vector<float> C(A.size(), 0.0);
-		
+
 		for(int i=0; i<A.size(); i++)
 			C[i] = A[i]+B[i];
-	
+
 		return C;
 	}
-	else 
-		throw std::runtime_error("Can't add matrices that aren't the same size!");	
+	else
+		throw std::runtime_error("Can't add matrices that aren't the same size!");
 }
 
 std::vector<float> subtract_matrices(std::vector<float>& A, std::vector<float>& B)
@@ -1544,14 +1544,14 @@ std::vector<float> subtract_matrices(std::vector<float>& A, std::vector<float>& 
 	if (A.size() == B.size())
 	{
 		std::vector<float> C(A.size(), 0.0);
-		
+
 		for(int i=0; i<A.size(); i++)
 			C[i] = A[i] - B[i];
 
 		return C;
 	}
-	else 
-		throw std::runtime_error("Can't subtract matrices that aren't the same size!");	
+	else
+		throw std::runtime_error("Can't subtract matrices that aren't the same size!");
 }
 
 std::vector<float> absolute_value_of_matrix_difference(std::vector<float>& A, std::vector<float>& B)
@@ -1559,13 +1559,13 @@ std::vector<float> absolute_value_of_matrix_difference(std::vector<float>& A, st
 	if (A.size() == B.size())
 	{
 		std::vector<float> C(A.size(), 0.0);
-		
+
 		for(int i=0; i<A.size(); i++)
 			C[i] = fabs(A[i] - B[i]);
-		
+
 		return C;
 	}
-	else 
+	else
 		throw std::runtime_error("Can't subtract matrices that aren't the same size!");
 
 }
@@ -1613,18 +1613,18 @@ void split_string(std::string& input, std::vector<std::string>& output)
 std::vector<float> read_matrix_float(std::string filename, unsigned int& m, unsigned int& n)
 {
 	std::vector<float> matrix;
-	
+
 	std::vector<std::string> dimensions_string;
 	std::vector<unsigned int> dimensions(2);
 	std::vector<std::string> line_values_string;
 	std::vector<float> line_values;
 	float tmp;
 	std::string input_buffer;
-	
+
 	std::ifstream data_file(filename);
 	if(!data_file.is_open())
 		throw std::runtime_error("File couln't be opened!");
-	
+
 	// Read first line and check for compatibility
 	std::getline(data_file, input_buffer);
 	split_string(input_buffer, dimensions_string);
@@ -1644,26 +1644,26 @@ std::vector<float> read_matrix_float(std::string filename, unsigned int& m, unsi
 					{
 						if (try_reading_float(line_values_string[k], tmp))
 							line_values.push_back(tmp);
-						else 
+						else
 							throw std::runtime_error("File does not meet requirements!");
 					}
 					matrix.insert(matrix.end(),line_values.begin(), line_values.end());
-					
+
 					// Empty buffers!
-					
+
 					input_buffer.clear();
 					line_values_string.clear();
 					line_values.clear();
 				}
-				else 
+				else
 					throw std::runtime_error("File does not meet requirements!");
 			}
 			return matrix;
 		}
-		else 
+		else
 			throw std::runtime_error("File does not meet requirements!");
-	}	
-	else 
+	}
+	else
 		throw std::runtime_error("File does not meet requirements!");
 }
 
@@ -1674,7 +1674,7 @@ void print_matrix_float(std::vector<float> matrix, const unsigned int& m, const 
 		std::cout << "Matrix size: " << matrix.size() << ", Dimension: " << m << "*" << n << "=" << m*n << std::endl;
 		throw std::runtime_error("Corrupt matrix!");
 	}
-	else 
+	else
 	{
 		for(int i=0; i<m; i++)
 		{
@@ -1682,10 +1682,10 @@ void print_matrix_float(std::vector<float> matrix, const unsigned int& m, const 
 			{
 				std::cout << std::fixed;
 				std::cout.precision(3);
-				std::cout << std::setw(10) << matrix[i*n+j]; 
+				std::cout << std::setw(10) << matrix[i*n+j];
 			}
 			std::cout << std::endl;
-		}	
+		}
 	}
 }
 
@@ -1697,7 +1697,7 @@ void write_matrix_float_to_file(std::string filename, std::vector<float> matrix,
 		throw std::runtime_error(error_message);
 	}
 
-	else 
+	else
 	{
 		std::ofstream output_file(filename);
 		if (output_file.is_open())
@@ -1708,21 +1708,21 @@ void write_matrix_float_to_file(std::string filename, std::vector<float> matrix,
 				{
 					output_file << std::fixed;
 					output_file.precision(3);
-					output_file << std::setw(10) << matrix[i*n+j]; 
+					output_file << std::setw(10) << matrix[i*n+j];
 				}
 				output_file << std::endl;
-			}	 
+			}
 		}
-		else 
+		else
 			throw std::runtime_error("Couldn't create file!");
-	}	
+	}
 }
 
 void write_matrix_float_to_pgm(std::string filename, std::vector<float> matrix, const unsigned int& m, const unsigned int& n) // m = rows of matrix, n = columns of matrix
 {
 	float conversion; // Dummy variable that is converted to unsigned char and clipped to 0..255
 	unsigned char output_pixel;
-	
+
 	if (matrix.size() != m*n)
 	{
 		std::string error_message = "Attempted to write corrupt matrix to "+filename+", aborting!";
@@ -1735,7 +1735,7 @@ void write_matrix_float_to_pgm(std::string filename, std::vector<float> matrix, 
 		output_file << "P5" << std::endl;
 		output_file << n << " " << m << std::endl; // Switch n and m for usual resolution statement of picture
 		output_file << "255" << std::endl; // States maximum grey value
-		
+
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
@@ -1744,42 +1744,42 @@ void write_matrix_float_to_pgm(std::string filename, std::vector<float> matrix, 
 				if (conversion < 0)
 				{
 					output_pixel = (unsigned char) 0;
-					output_file << output_pixel; 
+					output_file << output_pixel;
 				}
 				if (conversion > 255)
 				{
 					output_pixel= (unsigned char) 255;
 					output_file << output_pixel;
 				}
-				else 
+				else
 				{
-					output_pixel = (unsigned char) conversion; 
+					output_pixel = (unsigned char) conversion;
 					output_file << output_pixel;
 				}
 			}
 		}
 	}
-	else 
+	else
 		throw std::runtime_error("Couldn't create file!");
 }
 
 void write_matrix_float_to_pgm_normalised(std::string filename, std::vector<float> matrix, const unsigned int& m, const unsigned int& n) // m = rows of matrix, n = columns of matrix
 {
 	// Expects matrix with float values in the range of 0 and 255. Conversion necessary for matrices with different gray value spectra
-	
+
 	float min,max,conversion,scale; // Dummy variable that is converted to unsigned char and clipped to 0..255
 	std::vector<float> output(m*n, 0);
 	unsigned char output_pixel;
-	
+
 	if (matrix.size() != m*n)
 	{
 		std::string error_message = "Attempted to write corrupt matrix to "+filename+", aborting!";
 		throw std::runtime_error(error_message);
 	}
-	
+
 	min = matrix[0]; // Initialise to value that actually is in the image
 	max = matrix[0];
-	
+
 	for(int i=0; i<m; i++)
 	{
 		for(int j=0; j<n; j++)
@@ -1792,7 +1792,7 @@ void write_matrix_float_to_pgm_normalised(std::string filename, std::vector<floa
 	}
 
 	scale = 255/(max - min); // Normalise to {0,...,255}
-	
+
 	for(int i=0; i<m; i++)
 	{
 		for(int j=0; j<m; j++)
@@ -1800,14 +1800,14 @@ void write_matrix_float_to_pgm_normalised(std::string filename, std::vector<floa
 			output[i*m+j] = scale*(matrix[i*m+j]-min);
 		}
 	}
-	
+
 	std::ofstream output_file(filename, std::ios::out | std::ios::binary);
 	if (output_file.is_open())
 	{
 		output_file << "P5" << std::endl;
 		output_file << n << " " << m << std::endl; // Switch n and m for usual resolution statement of picture
 		output_file << "255" << std::endl; // States maximum grey value
-		
+
 		for (int i=0; i<m; i++)
 		{
 			for (int j=0; j<n; j++)
@@ -1818,15 +1818,15 @@ void write_matrix_float_to_pgm_normalised(std::string filename, std::vector<floa
 					output_pixel = (unsigned char) 255;
 					output_file << output_pixel;
 				}
-				else 
+				else
 				{
-					output_pixel = (unsigned char) conversion; 
+					output_pixel = (unsigned char) conversion;
 					output_file << output_pixel;
 				}
 			}
 		}
 	}
-	else 
+	else
 		throw std::runtime_error("Couldn't create file!");
 }
 
@@ -1837,7 +1837,7 @@ std::vector<float> read_pgm_to_matrix_float(std::string filename, unsigned int& 
 	std::vector<float> matrix;
 	unsigned char* tmp;
 	float dummy;
-	
+
 	std::ifstream input_file(filename, std::ios::binary);
 	if (input_file.is_open())
 	{
@@ -1847,14 +1847,14 @@ std::vector<float> read_pgm_to_matrix_float(std::string filename, unsigned int& 
 			std::string error_message = "Unknown file format in file "+filename;
 			throw std::runtime_error(error_message);
 		}
-		else 
+		else
 		{
 			std::getline(input_file, input_line);
 			while(input_line.compare(0,1,"#")==0)
-			{	
+			{
 				input_line.clear(); // Line read was comment, discard
 				std::getline(input_file, input_line);
-			}	
+			}
 			split_string(input_line, line_values_string);
 			if (line_values_string.size()==2)
 			{
@@ -1862,12 +1862,12 @@ std::vector<float> read_pgm_to_matrix_float(std::string filename, unsigned int& 
 				{
 					std::getline(input_file, input_line); // Read maximum grey value and discard
 					input_line.clear();
-						
+
 					tmp = (unsigned char*) new unsigned char[m*n];
-							
+
 					for(int i=0; i<m*n; i++)
 						input_file.read(reinterpret_cast<char*>(tmp), m*n*sizeof(unsigned char));
-					
+
 					for(int i=0; i<m; i++)
 					{
 						for(int j=0; j<n; j++)
@@ -1877,25 +1877,25 @@ std::vector<float> read_pgm_to_matrix_float(std::string filename, unsigned int& 
 						}
 					}
 				}
-				else 
+				else
 				{
 					std::string error_message = "Corrupt file "+filename;
-					throw std::runtime_error(error_message);	
+					throw std::runtime_error(error_message);
 				}
 			}
 			else
-			{	
+			{
 				std::string error_message = "Corrupt file "+filename;
 				throw std::runtime_error(error_message);
 			}
 		}
-	}		
-	else 
-	{	
+	}
+	else
+	{
 		std::string error_message = "Corrupt file "+filename;
 		throw std::runtime_error(error_message);
-	}	
-	
+	}
+
 	return matrix;
 }
 
@@ -1950,7 +1950,7 @@ void raster_ellipse_rotated(std::vector<float>& image, int res, std::vector<floa
 	}
 	else
 		throw std::runtime_error("Corrupt function call in raster_ellipsis.");
-	
+
 	float sinw = sin(angle);
 	float cosw = cos(angle);
 
@@ -2007,6 +2007,6 @@ std::vector<float> raster_shepp_logan(unsigned int res)
 	focus[0] = 0.06;
 	focus[1] = -0.605;
 	raster_ellipse(phantom, res, focus, 0.023, 0.046, 25);
-	
+
 	return phantom;
 }
